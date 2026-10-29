@@ -74,13 +74,46 @@ Your bot creates the routine. Bots can't see their own webhook keys, so copy the
 
 ### 2. Deploy your relay
 
-**Option A: one command** (needs Node 18+ and a free Cloudflare account):
+The relay is a small Cloudflare Worker that runs free in your own Cloudflare account. It holds your webhook key and passes questions to your bot.
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay)
+
+1. **Click the button** above, or **Deploy to Cloudflare** on the wizard's *Deploy your relay* screen.
+2. **Sign in to Cloudflare** (a free account is fine) and **connect your GitHub account** when asked. Cloudflare copies the relay into a new repo in your GitHub account and deploys it from there. You can keep the suggested project and Worker names.
+3. **Fill in the four secrets:**
+
+   | Secret | What to enter |
+   |---|---|
+   | `EXT_TOKEN` | A long random string, at least 24 characters. The extension sends it. |
+   | `REPLY_TOKEN` | A *different* long random string, at least 24 characters. Your bot uses it. |
+   | `GROKBOT_WEBHOOK_URL` | The routine's webhook **POST to** URL from step 1 (your bot's **Routines** tab → **Grok Browser** → **Webhook**). |
+   | `GROKBOT_WEBHOOK_KEY` | The webhook **key** from the same Webhook section. |
+
+   To get the two tokens, click **Generate tokens** on the wizard's *Deploy your relay* screen (it also fills in `EXT_TOKEN` on the next screen for you), or run this twice in a terminal:
+
+   ```bash
+   openssl rand -base64 32
+   ```
+
+   The relay treats any token shorter than 24 characters as unset and stays locked.
+4. Click **Deploy** and wait for the build to finish (about a minute).
+5. **Copy the `workers.dev` URL** shown at the end (like `https://grok-browser-relay.<your-subdomain>.workers.dev`). You paste it into the extension in step 3.
+
+You can change the secrets later in the Cloudflare dashboard: **Workers & Pages** → your Worker → **Settings** → **Variables and Secrets**.
+
+<details><summary>Troubleshooting: Cloudflare only shows "New GitHub connection"</summary>
+
+If the form's Git account section only offers **New GitHub connection**, even though the Cloudflare app is already installed on your GitHub account, the link between the two accounts is stale. Open [github.com/settings/apps/authorizations](https://github.com/settings/apps/authorizations), revoke **Cloudflare Workers and Pages**, then open the Deploy link again and reconnect GitHub.
+
+</details>
+
+**Prefer the terminal?** One command does the same (needs Node 18+ and a free Cloudflare account):
 
 ```bash
 git clone https://github.com/dafikabukcu/grok-browser && cd grok-browser && npm run setup
 ```
 
-`npm run setup` signs you in to Cloudflare (`wrangler login`) and generates two random 256-bit tokens: `EXT_TOKEN` for the extension and `REPLY_TOKEN` for your bot. It asks for the webhook URL and key from step 1, then deploys the Worker, stores all four values as Worker **secrets**, smoke-tests the relay, and writes `relay/grok-browser-settings.json`, which you can import into the extension.
+`npm run setup` signs you in to Cloudflare (`wrangler login`) and generates two random 256-bit tokens: `EXT_TOKEN` for the extension and `REPLY_TOKEN` for your bot. It asks for the webhook URL and key from step 1, then deploys the Worker, stores all four values as Worker **secrets**, smoke-tests the relay, and writes `relay/grok-browser-settings.json`, which you can import into the extension. No GitHub account is needed.
 
 Tokens are saved in `relay/.grok-browser-secrets.json` (git-ignored, mode 600) and are never printed. To see them, run `node relay/scripts/setup.mjs --show-tokens`. To replace them, use `--rotate-tokens`.
 
@@ -90,22 +123,11 @@ To run it without prompts (for example from a script), set `GROKBOT_WEBHOOK_URL`
 GROKBOT_WEBHOOK_URL=... GROKBOT_WEBHOOK_KEY=... npm run setup -- --name grok-browser-relay-test
 ```
 
-**Option B: Deploy to Cloudflare button**
-
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay)
-
-Click **Generate new tokens** on the wizard's *Deploy your relay* screen, then paste the four secrets into the Cloudflare form:
-
-| Secret | Value |
-|---|---|
-| `EXT_TOKEN` | the first generated token (the extension uses it) |
-| `REPLY_TOKEN` | the second generated token (your bot uses it) |
-| `GROKBOT_WEBHOOK_URL` | the routine's webhook URL from step 1 |
-| `GROKBOT_WEBHOOK_KEY` | the routine's sender key from step 1 |
+> **Forks and copies:** the Deploy to Cloudflare button only works for a **public** GitHub repo. If you host your own copy, make it public and change `dafikabukcu/grok-browser` in the button URL to your repo.
 
 ### 3. Connect the extension
 
-In the wizard's *Connect* screen (or **Settings → Relay**), paste the relay URL (`https://grok-browser-relay.<your-subdomain>.workers.dev`) and `EXT_TOKEN`, or use **Import settings file**. In Settings, click **Save**; the wizard saves when you press **Next**.
+In the wizard's *Connect* screen (or **Settings → Relay**), paste the `workers.dev` relay URL from your deploy and your `EXT_TOKEN` (already filled in if you used **Generate tokens**). If you used `npm run setup`, click **Import settings file** instead. In Settings, click **Save**; the wizard saves when you press **Next**.
 
 ### 4. Tell your bot
 

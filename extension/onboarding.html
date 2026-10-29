@@ -55,28 +55,34 @@
     <!-- 3b. Deploy -->
     <section class="step" data-step="byo-deploy" hidden>
       <h1 tabindex="-1">Deploy your relay</h1>
-      <p class="lead">A small, free Cloudflare Worker that holds your webhook key and passes questions to your bot. You'll need the webhook URL and key from the routine's Webhook section. Pick one way:</p>
+      <p class="lead">A small, free Cloudflare Worker that holds your webhook key and passes questions to your bot. You'll need the webhook URL and key from the routine's Webhook section.</p>
       <div class="opt">
-        <div class="opt-h"><span class="tag">A</span><b>One command</b><span class="muted">Node.js 18+</span></div>
-        <p class="muted small">Signs you in to Cloudflare, generates the tokens, asks for the webhook URL and key, deploys, and writes a settings file you can import in the next step.</p>
-        <div class="cmd"><code id="setupCmd">git clone https://github.com/dafikabukcu/grok-browser &amp;&amp; cd grok-browser &amp;&amp; npm run setup</code><button class="btn sm" data-copy="setupCmd">Copy</button></div>
-      </div>
-      <div class="opt">
-        <div class="opt-h"><span class="tag">B</span><b>Deploy to Cloudflare button</b><span class="muted">no terminal</span></div>
-        <p class="muted small">The Cloudflare form asks for four secrets: the two tokens below, plus the webhook URL and key from your bot.</p>
-        <div class="row"><a id="deployLink" class="btn" href="https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay" target="_blank" rel="noopener">Deploy to Cloudflare ↗</a><button id="genTokens" class="btn">Generate tokens</button></div>
+        <div class="opt-h"><span class="tag">A</span><b>Deploy to Cloudflare button</b><span class="muted">recommended · no terminal</span></div>
+        <ol class="small steps-list">
+          <li>Click <b>Generate tokens</b>, then <b>Deploy to Cloudflare</b>.</li>
+          <li>Sign in to Cloudflare and connect GitHub when asked. Cloudflare copies the relay into a new repo in your GitHub and deploys it.</li>
+          <li>Fill in the four secrets: the two tokens below, plus the webhook <b>POST to</b> URL and <b>key</b> from your bot's Routines tab → Grok Browser → Webhook.</li>
+          <li>Click <b>Deploy</b>, wait for the build, and copy the <code>workers.dev</code> URL it shows.</li>
+        </ol>
+        <div class="row"><button id="genTokens" class="btn">Generate tokens</button><a id="deployLink" class="btn primary" href="https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay" target="_blank" rel="noopener">Deploy to Cloudflare ↗</a></div>
         <div id="tokens" class="tokens" hidden>
           <div class="cmd"><span class="lbl">EXT_TOKEN</span><code id="tokExt"></code><button class="btn sm" data-copy="tokExt">Copy</button></div>
           <div class="cmd"><span class="lbl">REPLY_TOKEN</span><code id="tokReply"></code><button class="btn sm" data-copy="tokReply">Copy</button></div>
           <p class="muted small">Generated in this browser and kept only until you close it. EXT_TOKEN is filled in for you on the next screen.</p>
         </div>
+        <p class="muted small">Cloudflare only offers "New GitHub connection" even though it's installed? Revoke <b>Cloudflare Workers and Pages</b> at <a href="https://github.com/settings/apps/authorizations" target="_blank" rel="noopener">github.com/settings/apps/authorizations</a>, then reconnect.</p>
+      </div>
+      <div class="opt">
+        <div class="opt-h"><span class="tag">B</span><b>Prefer the terminal?</b><span class="muted">Node.js 18+</span></div>
+        <p class="muted small">Signs you in to Cloudflare, generates the tokens, asks for the webhook URL and key, deploys, and writes a settings file you can import in the next step. No GitHub account needed.</p>
+        <div class="cmd"><code id="setupCmd">git clone https://github.com/dafikabukcu/grok-browser &amp;&amp; cd grok-browser &amp;&amp; npm run setup</code><button class="btn sm" data-copy="setupCmd">Copy</button></div>
       </div>
     </section>
 
     <!-- 3c. Connect -->
     <section class="step" data-step="byo-connect" hidden>
       <h1 tabindex="-1">Connect this extension</h1>
-      <p class="lead">Paste your relay's URL and EXT_TOKEN, or import the settings file that <code>npm run setup</code> wrote (<code>relay/grok-browser-settings.json</code>).</p>
+      <p class="lead">Paste the <code>workers.dev</code> URL from your deploy and your EXT_TOKEN, or import the settings file that <code>npm run setup</code> wrote (<code>relay/grok-browser-settings.json</code>).</p>
       <label class="field">Relay URL<input id="relayUrl" type="url" placeholder="https://grok-browser-relay.<your-subdomain>.workers.dev" spellcheck="false" autocomplete="off"></label>
       <div id="relayUrlErr" class="hint"></div>
       <label class="field">Extension token (EXT_TOKEN)
