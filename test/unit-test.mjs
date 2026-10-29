@@ -33,6 +33,12 @@ ok(readme.includes(prompt.trim()), "README contains the exact 'paste this to you
 for (const f of ["request_id", "question", "url", "title", "selection", "visible_text", "page_text", "truncated", "pdf_url", "pdf_page", "pdf_page_source", "screenshot_url", "screenshot_error", "ext_version", "local_path", "source", "history"])
   if (!prompt.includes(f)) ok(false, "routine prompt mentions field " + f);
 ok(/__ping__/.test(prompt) && /curl/.test(prompt) && /\/answer/.test(prompt) && /~\/\.config\/grok-browser\/config\.json/.test(prompt), "routine prompt covers ping, curl delivery and the config file");
+{ const routine = prompt.split("ROUTINE PROMPT (start)")[1] || ""; const setupPart = prompt.split("ROUTINE PROMPT (start)")[0];
+  ok(/GROK_BROWSER_RELAY_URL/.test(routine) && /GROK_BROWSER_REPLY_TOKEN/.test(routine) && /otherwise read it from ~\/\.config\/grok-browser\/config\.json/.test(routine), "routine reads the env vars first, then falls back to the config file");
+  ok(/named exactly GROK_BROWSER_RELAY_URL and GROK_BROWSER_REPLY_TOKEN/.test(setupPart), "setup asks for secret requests with the exact env var names");
+  ok(/can't see the routine's webhook key/.test(setupPart) && /Routines tab/.test(setupPart), "setup sends the user to the routine's Webhook section for the URL and key");
+  const ob = fs.readFileSync(path.join(ROOT, "extension/onboarding.html"), "utf8");
+  ok(ob.includes("Ask me for GROK_BROWSER_RELAY_URL and GROK_BROWSER_REPLY_TOKEN with secure secret requests."), "wizard 'Tell your bot' message uses the same secret names"); }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "extension/manifest.json"), "utf8"));
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));

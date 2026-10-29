@@ -45,7 +45,7 @@
     <!-- 3a. Prompt -->
     <section class="step" data-step="byo-prompt" hidden>
       <h1 tabindex="-1">Paste this to your Grok Bot</h1>
-      <p class="lead">Open a chat with your Grok Bot and paste this prompt. It creates a “Grok Browser” webhook routine and replies with the routine's <b>webhook URL</b> and <b>key</b>. Keep that chat open.</p>
+      <p class="lead">Open a chat with your Grok Bot and paste this prompt. It creates a “Grok Browser” webhook routine. Then copy the routine's <b>webhook URL</b> and <b>key</b> from your bot's <b>Routines</b> tab → <b>Grok Browser</b> → <b>Webhook</b> section (bots can't see their own keys). Keep that chat open.</p>
       <div class="codebox">
         <div class="codebar"><span>Prompt for your Grok Bot</span><button id="copyPrompt" class="btn primary sm">Copy prompt</button></div>
         <pre id="botPrompt" class="prompt" tabindex="0"></pre>
@@ -55,7 +55,7 @@
     <!-- 3b. Deploy -->
     <section class="step" data-step="byo-deploy" hidden>
       <h1 tabindex="-1">Deploy your relay</h1>
-      <p class="lead">A small, free Cloudflare Worker that holds your webhook key and passes questions to your bot. Pick one way:</p>
+      <p class="lead">A small, free Cloudflare Worker that holds your webhook key and passes questions to your bot. You'll need the webhook URL and key from the routine's Webhook section. Pick one way:</p>
       <div class="opt">
         <div class="opt-h"><span class="tag">A</span><b>One command</b><span class="muted">Node.js 18+</span></div>
         <p class="muted small">Signs you in to Cloudflare, generates the tokens, asks for the webhook URL and key, deploys, and writes a settings file you can import in the next step.</p>
@@ -89,11 +89,11 @@
     <!-- 3d. Tell the bot -->
     <section class="step" data-step="byo-bot" hidden>
       <h1 tabindex="-1">Give your bot the relay URL and reply token</h1>
-      <p class="lead">Go back to the chat with your Grok Bot and send this. It asks for both values with a secure secret request and saves them on its computer.</p>
-      <div class="cmd quote"><code id="botMsg">My Grok Browser relay is deployed. Ask me for the relay URL and reply token with a secure secret request.</code><button class="btn sm" data-copy="botMsg">Copy</button></div>
+      <p class="lead">Go back to the chat with your Grok Bot and send this. It opens two secure secret requests; paste the relay URL into <b>GROK_BROWSER_RELAY_URL</b> and the reply token into <b>GROK_BROWSER_REPLY_TOKEN</b>.</p>
+      <div class="cmd quote"><code id="botMsg">My Grok Browser relay is deployed. Ask me for GROK_BROWSER_RELAY_URL and GROK_BROWSER_REPLY_TOKEN with secure secret requests.</code><button class="btn sm" data-copy="botMsg">Copy</button></div>
       <div class="kv">
-        <div class="cmd"><span class="lbl">RELAY_URL</span><code id="showRelay"></code><button class="btn sm" data-copy="showRelay">Copy</button></div>
-        <div class="cmd" id="replyRow"><span class="lbl">REPLY_TOKEN</span><code id="showReply" class="masked"></code><button class="btn sm" data-copy-secret="reply">Copy</button></div>
+        <div class="cmd"><span class="lbl">Relay URL</span><code id="showRelay"></code><button class="btn sm" data-copy="showRelay">Copy</button></div>
+        <div class="cmd" id="replyRow"><span class="lbl">Reply token</span><code id="showReply" class="masked"></code><button class="btn sm" data-copy-secret="reply">Copy</button></div>
         <p id="replyHint" class="muted small"></p>
       </div>
     </section>

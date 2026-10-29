@@ -114,7 +114,7 @@ async function fillBotStep() {
   const t = await sessionTokens();
   $("replyRow").hidden = !t;
   if (t) { $("showReply").textContent = "•".repeat(12) + t.reply.slice(-4); $("replyHint").textContent = "The REPLY_TOKEN you generated on the Deploy screen. Only paste it into your bot's secure secret request."; }
-  else $("replyHint").innerHTML = "Use the REPLY_TOKEN from your deploy. If you ran <code>npm run setup</code>, print it with <code>node relay/scripts/setup.mjs --show-tokens</code>.";
+  else $("replyHint").innerHTML = "Use the REPLY_TOKEN from your deploy. If you ran <code>npm run setup</code>, print it with <code>node relay/scripts/setup.mjs --show-tokens</code> (add <code>--name &lt;worker&gt;</code> if you deployed under another name).";
 }
 
 function setTest(which, cls, text) { const box = $(which === "relay" ? "relayTest" : "xaiTest"); box.className = "test " + cls; $(which === "relay" ? "relayTestText" : "xaiTestText").textContent = text; }

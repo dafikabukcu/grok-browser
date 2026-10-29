@@ -6,7 +6,7 @@ test/pages/sample-book.pdf
 # Secrets and per-user settings, never commit:
 .dev.vars
 .env
-relay/.grok-browser-secrets.json
-relay/grok-browser-settings.json
+relay/.grok-browser-secrets*.json
+relay/grok-browser-settings*.json
 *.local.json
 .DS_Store

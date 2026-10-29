@@ -6,6 +6,9 @@
 // 4. deploys the Worker, sets the 4 secrets (via stdin, never printed), smoke-tests it
 // 5. writes grok-browser-settings.json (relay URL + extension token) to import in the extension's settings
 // Tokens are never printed unless you pass --show-tokens.
+// Non-interactive: set GROKBOT_WEBHOOK_URL and GROKBOT_WEBHOOK_KEY in the environment.
+// --name <worker-name> (or GROK_BROWSER_WORKER_NAME) deploys under another Worker name, e.g. a separate test relay;
+// its tokens and settings file get their own names so they don't mix with the default relay's.
 import { spawn, spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import fs from "node:fs";
@@ -14,11 +17,16 @@ import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const RELAY_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SECRETS = path.join(RELAY_DIR, ".grok-browser-secrets.json");
-const SETTINGS = path.join(RELAY_DIR, "grok-browser-settings.json");
+const SUFFIX = (() => { const i = process.argv.indexOf("--name"); const n = (i > 0 ? process.argv[i + 1] : process.env.GROK_BROWSER_WORKER_NAME) || ""; return n ? "." + n : ""; })();
+const SECRETS = path.join(RELAY_DIR, `.grok-browser-secrets${SUFFIX}.json`);
+const SETTINGS = path.join(RELAY_DIR, `grok-browser-settings${SUFFIX}.json`);
 const SHOW = process.argv.includes("--show-tokens");
 const ROTATE = process.argv.includes("--rotate-tokens");
 const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+const argVal = (flag) => { const i = process.argv.indexOf(flag); return i > 0 ? process.argv[i + 1] : undefined; };
+const NAME = argVal("--name") || process.env.GROK_BROWSER_WORKER_NAME || "";
+if (NAME && !/^[a-z0-9][a-z0-9-]{0,62}$/.test(NAME)) { console.error("Worker name must be lowercase letters, digits and dashes."); process.exit(1); }
+const NAME_ARGS = NAME ? ["--name", NAME] : [];
 process.chdir(RELAY_DIR);
 
 const say = (s = "") => process.stdout.write(s + "\n");
@@ -64,7 +72,7 @@ async function main() {
   let key = process.env.GROKBOT_WEBHOOK_KEY || "";
   if (!url) {
     say("\nPaste the webhook \"POST to\" URL of your Grok Bot's \"Grok Browser\" routine.");
-    say("(Don't have it yet? Paste the prompt from extension/bot-prompt.txt into your Grok Bot first.)");
+    say("Find it in your bot's Routines tab -> Grok Browser -> Webhook section. (No routine yet? Paste the prompt from extension/bot-prompt.txt into your Grok Bot first.)");
     url = await ask("Webhook URL: ");
   }
   if (!/^https:\/\/\S+$/i.test(url)) { say("That doesn't look like an https:// URL."); process.exit(1); }
@@ -73,7 +81,8 @@ async function main() {
   writePrivate(SECRETS, { EXT_TOKEN: secrets.EXT_TOKEN, REPLY_TOKEN: secrets.REPLY_TOKEN });
 
   say("\n== deploying the Worker");
-  const dep = wr(["deploy"]);
+  if (NAME) say("worker name: " + NAME);
+  const dep = wr(["deploy", ...NAME_ARGS]);
   const out = (dep.stdout || "") + (dep.stderr || "");
   if (dep.status) {
     say(out);
@@ -85,7 +94,7 @@ async function main() {
   say("deployed: " + relayUrl);
 
   for (const [name, value] of [["EXT_TOKEN", secrets.EXT_TOKEN], ["REPLY_TOKEN", secrets.REPLY_TOKEN], ["GROKBOT_WEBHOOK_URL", url], ["GROKBOT_WEBHOOK_KEY", key]]) {
-    const r = wr(["secret", "put", name], { input: value });
+    const r = wr(["secret", "put", name, ...NAME_ARGS], { input: value });
     if (r.status) { say(`failed to set secret ${name}:\n` + String((r.stderr || "") + (r.stdout || "")).split(value).join("<hidden>")); process.exit(1); }
     say(`secret ${name} set`);
   }
@@ -105,9 +114,9 @@ Done!
 1. In the extension's settings choose "Bring your own Grok Bot", click "Import settings file..." and pick:
      ${SETTINGS}
    (or paste the relay URL and EXT_TOKEN by hand). Delete that file afterwards if you like.
-2. Tell your Grok Bot: "My Grok Browser relay is deployed. Ask me for the relay URL and reply token."
-   Relay URL:   ${relayUrl}
-   Reply token: the REPLY_TOKEN value in ${SECRETS}${SHOW ? "\n   REPLY_TOKEN = " + secrets.REPLY_TOKEN + "\n   EXT_TOKEN   = " + secrets.EXT_TOKEN : "\n   (run with --show-tokens to print it here)"}
+2. Tell your Grok Bot: "My Grok Browser relay is deployed. Ask me for GROK_BROWSER_RELAY_URL and GROK_BROWSER_REPLY_TOKEN with secure secret requests."
+   GROK_BROWSER_RELAY_URL:   ${relayUrl}
+   GROK_BROWSER_REPLY_TOKEN: the REPLY_TOKEN value in ${SECRETS}${SHOW ? "\n   REPLY_TOKEN = " + secrets.REPLY_TOKEN + "\n   EXT_TOKEN   = " + secrets.EXT_TOKEN : `\n   (run again with --show-tokens${NAME ? " --name " + NAME : ""} to print it here)`}
 3. Press "Test connection" in the extension. Your Grok Bot should answer "pong".
 `);
 }
