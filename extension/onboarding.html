@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set up Grok Browser</title><link rel="stylesheet" href="onboarding.css"></head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand"><img src="icons/icon48.png" alt=""><span>Grok Browser</span></div>
+    <div class="progress" aria-hidden="true"><div id="dots" class="dots"></div></div>
+    <div id="stepCount" class="count" aria-live="polite"></div>
+  </header>
+
+  <main id="stage" class="stage">
+    <!-- 1. Welcome -->
+    <section class="step" data-step="welcome" hidden>
+      <div class="hero"><img src="icons/icon128.png" alt=""></div>
+      <h1 tabindex="-1">Welcome to Grok Browser</h1>
+      <p class="lead">Ask about the page, PDF or book you're reading, right from a side panel next to it.</p>
+      <ul class="features">
+        <li><span class="fi">◎</span><div><b>Knows what's on screen</b><span>Your selection, the visible text and the whole page go with each question.</span></div></li>
+        <li><span class="fi">▤</span><div><b>PDF-aware</b><span>A screenshot of the viewer tells it which page you're on, so “explain this page” just works.</span></div></li>
+        <li><span class="fi">⇄</span><div><b>Your bot, your relay</b><span>Questions go to your own Grok Bot through a relay on your own Cloudflare account, or straight to xAI with your key.</span></div></li>
+      </ul>
+      <p class="fine">Community project, not affiliated with or endorsed by xAI. Setup takes about 5 minutes.</p>
+    </section>
+
+    <!-- 2. Mode -->
+    <section class="step" data-step="mode" hidden>
+      <h1 tabindex="-1">How should it answer?</h1>
+      <p class="lead">You can switch later in Settings.</p>
+      <div class="choices" role="radiogroup" aria-label="Answer mode">
+        <label class="choice"><input type="radio" name="mode" value="relay">
+          <span class="pill">Recommended</span>
+          <b>Bring your own Grok Bot</b>
+          <span class="desc">Your own Grok Bot answers through a webhook routine. It can use its tools and memory, and open local files if it has access to your computer.</span>
+          <span class="meta">≈5 min setup · 10–60 s per answer</span>
+        </label>
+        <label class="choice"><input type="radio" name="mode" value="xai">
+          <b>xAI API key</b>
+          <span class="desc">Calls Grok on the xAI API directly with your key. Answers stream in within seconds. No relay or bot needed.</span>
+          <span class="meta">≈1 min setup · billed to your xAI account</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 3a. Prompt -->
+    <section class="step" data-step="byo-prompt" hidden>
+      <h1 tabindex="-1">Paste this to your Grok Bot</h1>
+      <p class="lead">Open a chat with your Grok Bot and paste this prompt. It creates a “Grok Browser” webhook routine and replies with the routine's <b>webhook URL</b> and <b>key</b>. Keep that chat open.</p>
+      <div class="codebox">
+        <div class="codebar"><span>Prompt for your Grok Bot</span><button id="copyPrompt" class="btn primary sm">Copy prompt</button></div>
+        <pre id="botPrompt" class="prompt" tabindex="0"></pre>
+      </div>
+    </section>
+
+    <!-- 3b. Deploy -->
+    <section class="step" data-step="byo-deploy" hidden>
+      <h1 tabindex="-1">Deploy your relay</h1>
+      <p class="lead">A small, free Cloudflare Worker that holds your webhook key and passes questions to your bot. Pick one way:</p>
+      <div class="opt">
+        <div class="opt-h"><span class="tag">A</span><b>One command</b><span class="muted">Node.js 18+</span></div>
+        <p class="muted small">Signs you in to Cloudflare, generates the tokens, asks for the webhook URL and key, deploys, and writes a settings file you can import in the next step.</p>
+        <div class="cmd"><code id="setupCmd">git clone https://github.com/dafikabukcu/grok-browser &amp;&amp; cd grok-browser &amp;&amp; npm run setup</code><button class="btn sm" data-copy="setupCmd">Copy</button></div>
+      </div>
+      <div class="opt">
+        <div class="opt-h"><span class="tag">B</span><b>Deploy to Cloudflare button</b><span class="muted">no terminal</span></div>
+        <p class="muted small">The Cloudflare form asks for four secrets: the two tokens below, plus the webhook URL and key from your bot.</p>
+        <div class="row"><a id="deployLink" class="btn" href="https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay" target="_blank" rel="noopener">Deploy to Cloudflare ↗</a><button id="genTokens" class="btn">Generate tokens</button></div>
+        <div id="tokens" class="tokens" hidden>
+          <div class="cmd"><span class="lbl">EXT_TOKEN</span><code id="tokExt"></code><button class="btn sm" data-copy="tokExt">Copy</button></div>
+          <div class="cmd"><span class="lbl">REPLY_TOKEN</span><code id="tokReply"></code><button class="btn sm" data-copy="tokReply">Copy</button></div>
+          <p class="muted small">Generated in this browser and kept only until you close it. EXT_TOKEN is filled in for you on the next screen.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3c. Connect -->
+    <section class="step" data-step="byo-connect" hidden>
+      <h1 tabindex="-1">Connect this extension</h1>
+      <p class="lead">Paste your relay's URL and EXT_TOKEN, or import the settings file that <code>npm run setup</code> wrote (<code>relay/grok-browser-settings.json</code>).</p>
+      <label class="field">Relay URL<input id="relayUrl" type="url" placeholder="https://grok-browser-relay.<your-subdomain>.workers.dev" spellcheck="false" autocomplete="off"></label>
+      <div id="relayUrlErr" class="hint"></div>
+      <label class="field">Extension token (EXT_TOKEN)
+        <span class="pw"><input id="extToken" type="password" placeholder="EXT_TOKEN" spellcheck="false" autocomplete="off"><button id="showTok" class="btn ghost sm" type="button" aria-label="Show token">Show</button></span>
+      </label>
+      <div id="extTokenErr" class="hint"></div>
+      <div class="row"><label class="btn file">Import settings file…<input id="importFile" type="file" accept=".json,application/json"></label><span id="importStatus" class="status"></span></div>
+    </section>
+
+    <!-- 3d. Tell the bot -->
+    <section class="step" data-step="byo-bot" hidden>
+      <h1 tabindex="-1">Give your bot the relay URL and reply token</h1>
+      <p class="lead">Go back to the chat with your Grok Bot and send this. It asks for both values with a secure secret request and saves them on its computer.</p>
+      <div class="cmd quote"><code id="botMsg">My Grok Browser relay is deployed. Ask me for the relay URL and reply token with a secure secret request.</code><button class="btn sm" data-copy="botMsg">Copy</button></div>
+      <div class="kv">
+        <div class="cmd"><span class="lbl">RELAY_URL</span><code id="showRelay"></code><button class="btn sm" data-copy="showRelay">Copy</button></div>
+        <div class="cmd" id="replyRow"><span class="lbl">REPLY_TOKEN</span><code id="showReply" class="masked"></code><button class="btn sm" data-copy-secret="reply">Copy</button></div>
+        <p id="replyHint" class="muted small"></p>
+      </div>
+    </section>
+
+    <!-- 3e. Test -->
+    <section class="step" data-step="byo-test" hidden>
+      <h1 tabindex="-1">Test the connection</h1>
+      <p class="lead">This sends a test ping through your relay. Your Grok Bot should answer “pong”.</p>
+      <div id="relayTest" class="test idle"><div class="test-ic"></div><div id="relayTestText" class="test-text">Ready when you are.</div></div>
+      <div class="row center"><button id="runRelayTest" class="btn primary">Send test ping</button></div>
+    </section>
+
+    <!-- 4a. xAI key -->
+    <section class="step" data-step="xai-key" hidden>
+      <h1 tabindex="-1">Add your xAI API key</h1>
+      <p class="lead">Create a key at <a href="https://console.x.ai" target="_blank" rel="noopener">console.x.ai</a> → API Keys. It's stored only in this browser (<code>chrome.storage.local</code>) and sent only to <code>api.x.ai</code>.</p>
+      <label class="field">API key
+        <span class="pw"><input id="xaiKey" type="password" placeholder="xai-…" spellcheck="false" autocomplete="off"><button id="showKey" class="btn ghost sm" type="button" aria-label="Show key">Show</button></span>
+      </label>
+      <div id="xaiKeyErr" class="hint"></div>
+      <details class="adv"><summary>Model and reasoning effort</summary>
+        <div class="two">
+          <label class="field">Model<input id="xaiModel" type="text" list="models" placeholder="grok-4.7" spellcheck="false"></label>
+          <label class="field">Reasoning effort<select id="xaiEffort"><option value="low">low (fastest)</option><option value="medium">medium</option><option value="high">high</option><option value="">model default</option></select></label>
+        </div>
+        <datalist id="models"><option value="grok-4.7"><option value="grok-4.3"><option value="grok-4.20-0309-non-reasoning"><option value="grok-4.20-0309-reasoning"></datalist>
+      </details>
+    </section>
+
+    <!-- 4b. xAI test -->
+    <section class="step" data-step="xai-test" hidden>
+      <h1 tabindex="-1">Test your key</h1>
+      <p class="lead">This sends one tiny request to the xAI API.</p>
+      <div id="xaiTest" class="test idle"><div class="test-ic"></div><div id="xaiTestText" class="test-text">Ready when you are.</div></div>
+      <div class="row center"><button id="runXaiTest" class="btn primary">Test key</button></div>
+    </section>
+
+    <!-- 5. Access -->
+    <section class="step" data-step="access" hidden>
+      <h1 tabindex="-1">Page access</h1>
+      <p class="lead">Grok Browser reads the tab you ask about and, for PDFs, takes a screenshot of it. Check that it's allowed to:</p>
+      <div class="checks">
+        <div class="check" id="chkSites"><span class="ck"></span><div><b>Read pages on all sites</b><span id="chkSitesText"></span></div><button id="fixSites" class="btn sm" hidden>Allow on all sites</button></div>
+        <div class="check" id="chkFiles"><span class="ck"></span><div><b>Open local files</b> <span class="muted">(optional)</span><span id="chkFilesText"></span></div><button id="fixFiles" class="btn sm" hidden>Open extension details</button></div>
+      </div>
+      <div class="row center"><button id="recheck" class="btn ghost sm">Check again</button></div>
+    </section>
+
+    <!-- 6. Done -->
+    <section class="step" data-step="done" hidden>
+      <div class="hero done-ic">✓</div>
+      <h1 tabindex="-1">You're all set</h1>
+      <p class="lead">Open Grok Browser on any tab:</p>
+      <div class="ways">
+        <div class="way"><span class="keys"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd></span><span>Keyboard shortcut</span></div>
+        <div class="way"><img src="icons/icon32.png" alt=""><span>Toolbar icon (pin it from the puzzle menu)</span></div>
+        <div class="way"><span class="rc">Right-click</span><span>“Ask Grok Browser about this page / selection”</span></div>
+      </div>
+      <div class="tip"><b>Try it:</b> open an article or a PDF, press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> and ask “Explain what I'm looking at right now”.</div>
+      <p id="doneNote" class="muted small center"></p>
+    </section>
+  </main>
+
+  <footer class="nav">
+    <button id="back" class="btn ghost">← Back</button>
+    <span class="spacer"></span>
+    <button id="skip" class="btn link" hidden>Skip</button>
+    <button id="next" class="btn primary">Next →</button>
+  </footer>
+  <p class="keys muted">Enter: next · Esc: back · ← → to move between steps · <a id="openSettings" href="options.html">Settings</a></p>
+</div>
+<script type="module" src="onboarding.js"></script>
+</body>
+</html>

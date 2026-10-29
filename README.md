@@ -18,6 +18,19 @@ Ask **your own Grok Bot** about the web page, PDF or book you're reading, right 
   1. **Bring your own Grok Bot** (recommended). Questions go to your bot through a tiny relay you deploy to your own Cloudflare account. Your bot answers with its own tools, memory and computer.
   2. **xAI API key.** It calls `https://api.x.ai/v1/chat/completions` directly and streams the answer. Screenshots go as image input (vision). No relay or bot is needed.
 
+## Setup wizard
+
+Installing the extension opens a short setup wizard in a new tab, one screen at a time: welcome, pick a mode, then the steps for that mode, page access, and how to open the panel. Use **Back** / **Next**, or `Enter` (next), `Esc` (back) and `←` / `→`. **Next** stays disabled until the current screen is filled in; the connection tests can be skipped. Progress is saved, so closing the tab and reopening the wizard picks up where you left off. Run it again any time from **Settings → Run setup again**. Screens slide in the direction you're going and switch instantly if your system asks for reduced motion.
+
+<table>
+<tr><td align="center" width="33%"><img src="docs/screenshots/onboarding-01-welcome.png" alt="Welcome"><br><sub>1. Welcome</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-02-mode.png" alt="Pick a mode"><br><sub>2. Pick a mode</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-03-paste-prompt.png" alt="Paste the prompt"><br><sub>3. Paste the prompt</sub></td></tr>
+<tr><td align="center" width="33%"><img src="docs/screenshots/onboarding-04-deploy-relay.png" alt="Deploy your relay"><br><sub>4. Deploy your relay</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-05-connect.png" alt="Connect"><br><sub>5. Connect</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-06-tell-your-bot.png" alt="Tell your bot"><br><sub>6. Tell your bot</sub></td></tr>
+<tr><td align="center" width="33%"><img src="docs/screenshots/onboarding-07-test-connection.png" alt="Test: pong"><br><sub>7. Test: pong</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-08-permissions.png" alt="Page access"><br><sub>8. Page access</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-09-done.png" alt="Done"><br><sub>9. Done</sub></td></tr>
+<tr><td align="center" width="33%"><img src="docs/screenshots/onboarding-10-xai-key.png" alt="xAI: add your key"><br><sub>10. xAI: add your key</sub></td><td align="center" width="33%"><img src="docs/screenshots/onboarding-11-xai-test.png" alt="xAI: test the key"><br><sub>11. xAI: test the key</sub></td></tr>
+</table>
+
+Steps 3–7 are the Grok Bot path; the xAI path replaces them with steps 10–11 (6 screens in total). The sections below describe the same steps in detail.
+
 ## Mode 1: Bring your own Grok Bot
 
 ```
@@ -30,7 +43,7 @@ Setup takes about 5 minutes.
 
 ### 1. Just paste this to your Grok Bot
 
-The same text, with a **Copy** button, is shown on the extension's first-run / Settings page.
+The same text, with a **Copy** button, is shown in the setup wizard and under **Settings → Grok Bot routine prompt**.
 
 <!-- The block below must stay identical to extension/bot-prompt.txt (the unit test checks it). -->
 ````text
@@ -75,7 +88,7 @@ Tokens are saved in `relay/.grok-browser-secrets.json` (git-ignored, mode 600) a
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay)
 
-Click **Generate tokens** on the extension's Settings page, then paste the four secrets into the Cloudflare form:
+Click **Generate new tokens** on the wizard's *Deploy your relay* screen, then paste the four secrets into the Cloudflare form:
 
 | Secret | Value |
 |---|---|
@@ -86,13 +99,13 @@ Click **Generate tokens** on the extension's Settings page, then paste the four 
 
 ### 3. Connect the extension
 
-In **Settings → Bring your own Grok Bot**, paste the relay URL (`https://grok-browser-relay.<your-subdomain>.workers.dev`) and `EXT_TOKEN`, or use **Import settings file**. Then click **Save**.
+In the wizard's *Connect* screen (or **Settings → Relay**), paste the relay URL (`https://grok-browser-relay.<your-subdomain>.workers.dev`) and `EXT_TOKEN`, or use **Import settings file**. In Settings, click **Save**; the wizard saves when you press **Next**.
 
 ### 4. Tell your bot
 
-Give your bot the relay URL and `REPLY_TOKEN` when it asks (it should use a secure secret request). Then press **Test connection**. You should see `pong`.
+Give your bot the relay URL and `REPLY_TOKEN` when it asks (it should use a secure secret request). The wizard shows both with **Copy** buttons, then sends a test ping; you should see `pong`. **Settings → Test connection** does the same later.
 
-<p align="center"><img src="docs/screenshots/options.png" width="508" alt="Settings / first-run page"></p>
+<p align="center"><img src="docs/screenshots/options.png" width="508" alt="Settings page"></p>
 
 <details><summary>What the bot sees for a PDF: the visible tab as a JPEG (under 400 KB)</summary>
 
@@ -105,7 +118,7 @@ Give your bot the relay URL and `REPLY_TOKEN` when it asks (it should use a secu
 ## Mode 2: xAI API key
 
 1. Create a key at [console.x.ai](https://console.x.ai) → API Keys. Usage is billed to your xAI account.
-2. In **Settings → xAI API key**, paste the key and pick a model. The default is `grok-4.7`, which supports image input; you can also type any other model ID. Choose a reasoning effort, then click **Save** and **Test key**.
+2. In the wizard (or **Settings → xAI API key**), paste the key and pick a model. The default is `grok-4.7`, which supports image input; you can also type any other model ID. Choose a reasoning effort; the wizard tests the key for you (in Settings, click **Save** and **Test key**).
 
 Answers stream in token by token. In this mode the model can't open local files or browse, so for local PDFs it only sees the screenshot and the text Chrome exposes.
 
@@ -116,7 +129,7 @@ Grok Browser isn't on the Chrome Web Store (yet). It works in Chrome, Edge, Brav
 - **From a release:** download `grok-browser-<version>.zip` from [Releases](https://github.com/dafikabukcu/grok-browser/releases) and unzip it. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
 - **From source:** clone the repo, then **Load unpacked** the `extension/` folder.
 
-The Settings page opens on first install. If you want to ask about local files, open the extension's **Details** page and turn on **Allow access to file URLs**.
+The setup wizard opens on first install. Its *Page access* screen checks site access and local-file access, with buttons to fix either. For local files, open the extension's **Details** page and turn on **Allow access to file URLs**.
 
 ### Local files
 

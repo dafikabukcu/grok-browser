@@ -7,7 +7,10 @@ chrome.runtime.onInstalled.addListener((details) => {
   chrome.contextMenus.create({ id: "ask-selection", title: "Ask Grok Browser about selection", contexts: ["selection"] });
   chrome.contextMenus.create({ id: "ask-page", title: "Ask Grok Browser about this page", contexts: ["page", "frame"] });
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {});
-  if (details.reason === "install") chrome.runtime.openOptionsPage();
+  // First install opens the setup wizard. Updates open it only if setup was never started and nothing is configured.
+  const openWizard = () => chrome.tabs.create({ url: chrome.runtime.getURL("onboarding.html") });
+  if (details.reason === "install") openWizard();
+  else if (details.reason === "update") chrome.storage.local.get(["onboarding", "relayUrl", "xaiKey"]).then((s) => { if (!s.onboarding && !s.relayUrl && !s.xaiKey) openWizard(); });
 });
 
 // Toolbar click or the Alt+Shift+G shortcut (_execute_action). Both grant activeTab for this tab.

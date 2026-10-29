@@ -3,33 +3,20 @@
 <head><meta charset="utf-8"><title>Grok Browser · Settings</title><link rel="stylesheet" href="options.css"></head>
 <body>
 <div class="card">
-  <h1><img src="icons/icon48.png" alt="">Grok Browser</h1>
-  <p class="muted">Ask about the page, book or PDF you're reading from a side panel. Community project, not affiliated with or endorsed by xAI.</p>
+  <div class="head">
+    <h1><img src="icons/icon48.png" alt="">Grok Browser <span class="muted h-sub">Settings</span></h1>
+    <a id="rerun" class="btn" href="onboarding.html?restart=1">Run setup again</a>
+  </div>
+  <p class="muted small">Community project, not affiliated with or endorsed by xAI. New here? The <a href="onboarding.html?restart=1">setup guide</a> walks you through it step by step.</p>
 
-  <h2>How should it answer?</h2>
+  <h2>Mode</h2>
   <div class="modes">
-    <label class="mode"><input type="radio" name="mode" value="relay" checked><span><b>Bring your own Grok Bot</b><br><span class="muted small">Your own Grok Bot answers through a webhook routine. It can use its own tools, like opening local files if it has access to your computer. About 15–40 s per answer.</span></span></label>
-    <label class="mode"><input type="radio" name="mode" value="xai"><span><b>xAI API key</b><br><span class="muted small">Calls the xAI API directly with your key and streams the answer in seconds. No relay needed. Billed to your xAI account.</span></span></label>
+    <label class="mode"><input type="radio" name="mode" value="relay" checked><span><b>Bring your own Grok Bot</b><br><span class="muted small">Your Grok Bot answers through your relay. 10–60 s per answer.</span></span></label>
+    <label class="mode"><input type="radio" name="mode" value="xai"><span><b>xAI API key</b><br><span class="muted small">Streams from the xAI API with your key. Billed to your xAI account.</span></span></label>
   </div>
 
   <section id="relaySection">
-    <h2><span class="step">1</span>Just paste this to your Grok Bot</h2>
-    <p class="muted small">Copy the prompt into a chat with your Grok Bot. It creates a "Grok Browser" webhook routine and gives you its webhook URL and key.</p>
-    <div class="prompt-wrap"><button id="copyPrompt" class="primary copy">Copy prompt</button><pre id="botPrompt" class="prompt" tabindex="0"></pre></div>
-
-    <h2><span class="step">2</span>Deploy your relay</h2>
-    <p class="muted small">A small, free Cloudflare Worker that holds your webhook key and passes questions to your bot. Pick one way to deploy it:</p>
-    <p class="small"><b>A. One command</b> (needs Node.js 18+). It signs you in to Cloudflare, generates the tokens, asks for the webhook URL and key, and deploys:</p>
-    <div class="cmd"><code id="setupCmd">git clone https://github.com/dafikabukcu/grok-browser &amp;&amp; cd grok-browser &amp;&amp; npm run setup</code><button class="copy" data-copy="setupCmd">Copy</button></div>
-    <p class="small"><b>B. Deploy to Cloudflare button</b> (no terminal). <a id="deployLink" href="https://deploy.workers.cloudflare.com/?url=https://github.com/dafikabukcu/grok-browser/tree/main/relay" target="_blank" rel="noopener">Deploy to Cloudflare ↗</a>. It asks for four secrets. Generate the two tokens here and paste them in:</p>
-    <div class="row"><button id="genTokens">Generate tokens</button><span class="muted small">Generated in your browser. EXT_TOKEN is also filled in below.</span></div>
-    <div id="tokens" class="tokens hidden">
-      <div class="cmd"><span class="lbl">EXT_TOKEN</span><code id="tokExt"></code><button class="copy" data-copy="tokExt">Copy</button></div>
-      <div class="cmd"><span class="lbl">REPLY_TOKEN</span><code id="tokReply"></code><button class="copy" data-copy="tokReply">Copy</button></div>
-      <p class="muted small">Keep REPLY_TOKEN somewhere safe for a minute. Your Grok Bot needs it in step 4.</p>
-    </div>
-
-    <h2><span class="step">3</span>Connect this extension</h2>
+    <h2>Relay</h2>
     <label>Relay URL<input id="relayUrl" type="url" placeholder="https://grok-browser-relay.<your-subdomain>.workers.dev" spellcheck="false"></label>
     <label>Extension token (EXT_TOKEN)<input id="extToken" type="password" placeholder="EXT_TOKEN" spellcheck="false" autocomplete="off"></label>
     <div class="row">
@@ -38,31 +25,28 @@
       <button id="test">Test connection</button>
     </div>
     <div id="status" class="status"></div>
-
-    <h2><span class="step">4</span>Give your bot the relay URL and reply token</h2>
-    <p class="muted small">Tell your Grok Bot: <i>"My Grok Browser relay is deployed. Ask me for the relay URL and reply token."</i> Give them through its secure secret request. Then press <b>Test connection</b>. It should answer "pong".</p>
+    <details class="box"><summary>Grok Bot routine prompt</summary>
+      <div class="codebox"><div class="codebar"><span>Paste this to your Grok Bot</span><button id="copyPrompt" class="primary copy">Copy prompt</button></div><pre id="botPrompt" class="prompt" tabindex="0"></pre></div>
+    </details>
   </section>
 
   <section id="xaiSection" class="hidden">
     <h2>xAI API key</h2>
-    <p class="muted small">Create a key at <a href="https://console.x.ai" target="_blank" rel="noopener">console.x.ai</a>. It's stored only in this browser (<code>chrome.storage.local</code>) and sent only to <code>api.x.ai</code>.</p>
+    <p class="muted small">Create a key at <a href="https://console.x.ai" target="_blank" rel="noopener">console.x.ai</a>. Stored only in this browser and sent only to <code>api.x.ai</code>. In this mode local files can't be opened; PDFs are read from a screenshot.</p>
     <label>API key<input id="xaiKey" type="password" placeholder="xai-…" spellcheck="false" autocomplete="off"></label>
-    <label>Model<input id="xaiModel" type="text" list="models" placeholder="grok-4.7" spellcheck="false"></label>
+    <div class="two">
+      <label>Model<input id="xaiModel" type="text" list="models" placeholder="grok-4.7" spellcheck="false"></label>
+      <label>Reasoning effort<select id="xaiEffort"><option value="low">low (fastest)</option><option value="medium">medium</option><option value="high">high</option><option value="">model default</option></select></label>
+    </div>
     <datalist id="models"><option value="grok-4.7"><option value="grok-4.3"><option value="grok-4.20-0309-non-reasoning"><option value="grok-4.20-0309-reasoning"></datalist>
-    <label>Reasoning effort
-      <select id="xaiEffort"><option value="low">low (fastest)</option><option value="medium">medium</option><option value="high">high</option><option value="">model default</option></select>
-    </label>
     <div class="row"><button id="saveXai" class="primary">Save</button><button id="testXai">Test key</button></div>
     <div id="xaiStatus" class="status"></div>
-    <p class="muted small">In this mode the extension can't open local files on your computer. It sends the page's text and, for PDFs, a screenshot of what's on screen.</p>
   </section>
 
   <h2>Page access</h2>
   <div id="access" class="status"></div>
-  <p class="muted small">Grok Browser needs site access on all sites so the side panel can read whichever tab you're on and take a screenshot of it. If you limit that in the browser's extension settings, press <kbd>Alt+Shift+G</kbd> or click the toolbar icon on a tab before asking.</p>
-  <p class="muted small">Screenshots: for PDFs and pages with little readable text, each question also includes a screenshot of what's on screen, so the model can see the page number and the passage you're on. If a screenshot can't be taken, the panel tells you why. In Grok Bot mode the screenshot stays on your relay for 15 minutes.</p>
-  <p class="muted small">Local files (PDF, HTML opened from your disk): open <code>chrome://extensions</code> → Grok Browser → Details → turn on <b>Allow access to file URLs</b>.</p>
-  <p class="muted small">Version <span id="ver"></span>. Change the shortcut at <code>chrome://extensions/shortcuts</code>. <a href="https://github.com/dafikabukcu/grok-browser" target="_blank" rel="noopener">Source &amp; privacy</a></p>
+  <p class="muted small">Screenshots are sent for PDFs and pages with little readable text so the model can see the page number. For local files, turn on <b>Allow access to file URLs</b> in the extension's Details. If site access is limited, press <kbd>Alt+Shift+G</kbd> on a tab before asking.</p>
+  <p class="muted small">Version <span id="ver"></span> · Shortcut: <code>chrome://extensions/shortcuts</code> · <a href="https://github.com/dafikabukcu/grok-browser" target="_blank" rel="noopener">Source &amp; privacy</a></p>
 </div>
 <script type="module" src="options.js"></script>
 </body>

@@ -1,7 +1,7 @@
 {
   "name": "grok-browser",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Ask your own Grok Bot (or Grok via your xAI API key) about the page, book or PDF you're reading. Community project, not affiliated with xAI.",
   "license": "MIT",
   "type": "module",

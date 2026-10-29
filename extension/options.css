@@ -19,10 +19,8 @@ code,kbd{background:#1c1c1f;border:1px solid #2a2a2e;border-radius:5px;padding:0
 .mode:has(input:checked){border-color:#7aa2ff;background:#161a24}
 .mode input{margin-top:4px}
 .step{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#ececef;color:#000;font-size:12px;margin-right:8px}
-.prompt-wrap{position:relative}
-.prompt{white-space:pre-wrap;word-break:break-word;background:#0d0d0f;border:1px solid #2a2a2e;border-radius:10px;padding:12px;max-height:260px;overflow:auto;font:12px/1.5 ui-monospace,Consolas,monospace;margin:6px 0 0}
+.prompt{white-space:pre-wrap;word-break:break-word;background:#0d0d0f;padding:12px;max-height:260px;overflow:auto;font:12px/1.5 ui-monospace,Consolas,monospace;margin:0}
 .copy{font-size:12.5px;padding:5px 10px}
-.prompt-wrap .copy{position:absolute;top:8px;right:18px}
 .cmd{display:flex;gap:8px;align-items:center;background:#0d0d0f;border:1px solid #2a2a2e;border-radius:10px;padding:6px 6px 6px 10px;margin:6px 0}
 .cmd code{flex:1;border:0;background:none;padding:0;font-size:12px;overflow-x:auto;white-space:nowrap}
 .lbl{font:600 11px ui-monospace,Consolas,monospace;color:#8b8b93;min-width:92px}
@@ -31,3 +29,14 @@ input[type=text]{display:block;width:100%;margin-top:5px;background:#0d0d0f;bord
 a{color:#7aa2ff}
 .hidden{display:none!important}
 section{margin-top:4px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.head h1{margin:0}.h-sub{font-weight:400;font-size:15px}
+a.btn{display:inline-block;text-decoration:none;background:#1c1c1f;border:1px solid #2a2a2e;border-radius:10px;padding:7px 13px;color:#ececef;font-size:13px;white-space:nowrap}
+a.btn:hover{background:#242428}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two select{width:100%}
+.box{margin-top:16px;border:1px solid #2a2a2e;border-radius:12px;padding:10px 12px}
+.box summary{cursor:pointer;font-weight:500}
+.codebox{border:1px solid #2a2a2e;border-radius:10px;overflow:hidden;margin-top:10px}
+.codebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 6px 6px 12px;border-bottom:1px solid #2a2a2e;font-size:12.5px;color:#8b8b93;background:#111113}
+button.copied{background:#16301f!important;border-color:#2c6b42!important;color:#7ddc9a!important}
+#access button{margin:6px 6px 0 0}

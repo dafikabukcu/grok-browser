@@ -1,7 +1,7 @@
 {
   "name": "grok-browser-relay",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Relay between the Grok Browser extension and your own Grok Bot webhook routine (Cloudflare Worker + SQLite Durable Object).",
   "license": "MIT",
   "type": "module",

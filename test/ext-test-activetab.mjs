@@ -18,6 +18,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ["--no-sandbox", "--window-size=1280,900"], enableExtensions: [EXT] });
 let swT = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().endsWith("background.js"));
 const extId = new URL(swT.url()).host;
+// The onboarding tab opens on install; close it so it doesn't become the active tab in these tests.
+const obTab = await browser.waitForTarget((t) => t.url().includes("/onboarding.html"), { timeout: 5000 }).catch(() => null); if (obTab) await (await obTab.page())?.close();
 const ce = await browser.newPage(); await ce.goto("chrome://extensions");
 await ce.evaluate((id) => new Promise((r) => chrome.developerPrivate.updateExtensionConfiguration({ extensionId: id, fileAccess: true }, r)), extId); await ce.close();
 await sleep(1500);

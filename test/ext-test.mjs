@@ -15,6 +15,8 @@ const browser = await puppeteer.launch({ executablePath: CHROME, headless: true,
   args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, "--no-sandbox", "--window-size=420,800"], enableExtensions: [EXT] }).catch(async (e) => { console.error(e.message); process.exit(1); });
 const sw = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().endsWith("background.js"), { timeout: 15000 });
 const extId = new URL(sw.url()).host; console.log("extension id", extId);
+// The onboarding tab opens on install; close it so it doesn't become the active tab in these tests.
+const obTab = await browser.waitForTarget((t) => t.url().includes("/onboarding.html"), { timeout: 5000 }).catch(() => null); if (obTab) await (await obTab.page())?.close();
 const results = {}; let pass = 0, fail = 0;
 const ok = (c, n, x = "") => { c ? pass++ : fail++; console.log(`${c ? "PASS" : "FAIL"} ${n} ${x}`); };
 
@@ -118,11 +120,8 @@ const ping = await opt.evaluate(async () => { const api = await import("./api.js
 ok(ping.answer === "pong", "options Test connection path (__ping__ -> pong)");
 await opt.setViewport({ width: 900, height: 1400 }); await opt.reload(); await new Promise((r) => setTimeout(r, 800));
 const promptShown = await opt.$eval("#botPrompt", (e) => e.textContent);
-ok(promptShown === fs.readFileSync(path.join(SRC, "bot-prompt.txt"), "utf8") && /ROUTINE PROMPT \(start\)/.test(promptShown), "options: 'paste this to your Grok Bot' prompt is shown verbatim");
-await opt.bringToFront(); await opt.evaluate(() => document.getElementById("genTokens").click());
-const toks = await opt.evaluate(() => [document.getElementById("tokExt").textContent, document.getElementById("tokReply").textContent, document.getElementById("extToken").value]);
-ok(/^[A-Za-z0-9_-]{43}$/.test(toks[0]) && /^[A-Za-z0-9_-]{43}$/.test(toks[1]) && toks[0] !== toks[1] && toks[2] === toks[0], "options: Generate tokens makes two different 256-bit tokens and fills EXT_TOKEN");
-await opt.evaluate((tok) => { document.getElementById("extToken").value = tok; document.getElementById("tokens").classList.add("hidden"); }, process.env.TEST_EXT);
+ok(promptShown === fs.readFileSync(path.join(SRC, "bot-prompt.txt"), "utf8") && /ROUTINE PROMPT \(start\)/.test(promptShown), "settings: Grok Bot prompt is shown verbatim");
+await opt.evaluate((tok) => { document.getElementById("extToken").value = tok; }, process.env.TEST_EXT);
 await opt.bringToFront(); await opt.screenshot({ path: path.join(SHOTS, "options.png"), fullPage: true });
 
 // Side panel UI rendering with a seeded thread.

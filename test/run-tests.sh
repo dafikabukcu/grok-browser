@@ -38,4 +38,6 @@ pkill -f "wrangler dev --port 8787"; sleep 2; start_relay   # fresh rate-limit b
 node ext-test.mjs; R2=$?
 pkill -f "wrangler dev --port 8787"; sleep 2; start_relay
 node ext-test-activetab.mjs; R3=$?
-echo "unit-test exit $R0, relay-test exit $R1, ext-test exit $R2, ext-test-activetab exit $R3"; exit $(( R0 || R1 || R2 || R3 ))
+pkill -f "wrangler dev --port 8787"; sleep 2; start_relay
+node ext-test-onboarding.mjs; R4=$?
+echo "unit-test exit $R0, relay-test exit $R1, ext-test exit $R2, ext-test-activetab exit $R3, ext-test-onboarding exit $R4"; exit $(( R0 || R1 || R2 || R3 || R4 ))
