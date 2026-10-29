@@ -39,7 +39,11 @@ async function safeEqual(a, b) {
   return d === 0;
 }
 
+// Tokens shorter than this are treated as unset, so a placeholder or weak secret (for example one typed into the
+// Deploy to Cloudflare form before the real values are set) can never authenticate.
+const MIN_TOKEN_LENGTH = 24;
 async function authed(req, secret) {
+  if (typeof secret !== "string" || secret.length < MIN_TOKEN_LENGTH) return false;
   const m = (req.headers.get("Authorization") || "").match(/^Bearer\s+(.+)$/i);
   return !!m && (await safeEqual(m[1].trim(), secret));
 }
