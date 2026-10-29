@@ -1,0 +1,22 @@
+{
+  "name": "grok-browser-relay",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Relay between the Grok Browser extension and your own Grok Bot webhook routine (Cloudflare Worker + SQLite Durable Object).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "setup": "node scripts/setup.mjs"
+  },
+  "devDependencies": { "wrangler": "^4" },
+  "cloudflare": {
+    "bindings": {
+      "EXT_TOKEN": { "description": "A long random string the extension sends. Generate one with `openssl rand -base64 32` or the **Generate tokens** button in Grok Browser's settings, and keep it: you paste it into the extension." },
+      "REPLY_TOKEN": { "description": "A *different* long random string. Your Grok Bot uses it to post answers and fetch screenshots. Give it to your bot when it asks (secure secret request)." },
+      "GROKBOT_WEBHOOK_URL": { "description": "The **POST to** URL of the `Grok Browser` webhook routine your Grok Bot created." },
+      "GROKBOT_WEBHOOK_KEY": { "description": "That routine's webhook **key** (sent as `Authorization: Bearer`)." }
+    }
+  }
+}

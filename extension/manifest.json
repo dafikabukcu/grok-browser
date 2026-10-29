@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Grok Browser",
+  "short_name": "Grok Browser",
+  "version": "1.0.0",
+  "description": "Ask your own Grok Bot, or Grok with your xAI API key, about the page, book or PDF you're reading. Community project, not affiliated with xAI.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Ask about this page (Grok Browser)",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "storage",
+    "contextMenus"
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+G",
+        "mac": "Alt+Shift+G"
+      },
+      "description": "Open Grok Browser"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
+  },
+  "host_permissions": [
+    "<all_urls>",
+    "https://api.x.ai/*"
+  ],
+  "homepage_url": "https://github.com/dafikabukcu/grok-browser"
+}

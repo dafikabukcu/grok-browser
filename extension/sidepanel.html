@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grok Browser</title>
+<link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+<header>
+  <div class="brand"><img src="icons/icon32.png" alt=""><span>Grok Browser</span><span id="modeBadge" class="badge"></span></div>
+  <div class="actions">
+    <button id="newChat" class="icon" title="New chat for this tab">＋</button>
+    <button id="openOptions" class="icon" title="Settings">⚙</button>
+  </div>
+</header>
+<div id="pageBar" class="page-bar">
+  <div id="pageTitle" class="page-title">No page</div>
+  <div id="pageUrl" class="page-url"></div>
+</div>
+<div id="notice" class="notice hidden"></div>
+<main id="thread">
+  <div id="empty" class="empty">
+    <h2>Ask about this page</h2>
+    <p>I read the page you're on: the part on screen, the whole readable text, anything you've selected, or the PDF or local file.</p>
+    <div class="suggestions">
+      <button class="sugg">Summarize this page</button>
+      <button class="sugg">Explain what I'm looking at right now</button>
+      <button class="sugg">What are the key ideas of this chapter?</button>
+      <button class="sugg">Quiz me on this page</button>
+    </div>
+  </div>
+</main>
+<footer>
+  <div id="selectionChip" class="chip hidden"><span class="chip-label">Selection</span><span id="selectionText"></span><button id="clearSelection" class="chip-x" title="Remove">×</button></div>
+  <form id="askForm">
+    <textarea id="question" rows="1" placeholder="Ask about this page…" autocomplete="off"></textarea>
+    <button id="send" type="submit" title="Send (Enter)">➤</button>
+  </form>
+  <div class="hint">Enter to send · Shift+Enter for a new line · Alt+Shift+G opens this panel</div>
+</footer>
+<script type="module" src="sidepanel.js"></script>
+</body>
+</html>

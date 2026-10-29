@@ -1,0 +1,40 @@
+name = "grok-browser-relay"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+# Strongly consistent store for pending questions, answers and rate-limit counters.
+# SQLite-backed Durable Objects are available on the Workers Free plan.
+[[durable_objects.bindings]]
+name = "STORE"
+class_name = "RelayStore"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RelayStore"]
+
+[vars]
+# Max bytes of the JSON body forwarded to the Grok Bot webhook. page_text is trimmed to fit.
+MAX_FORWARD_BYTES = "98304"
+# Max bytes accepted from the extension on POST /ask.
+MAX_ASK_BYTES = "1572864"
+# Max decoded bytes of the optional visible-tab screenshot (stored in the DO, served at GET /screenshot/:id).
+MAX_SCREENSHOT_BYTES = "1048576"
+# Max bytes accepted from the bot on POST /answer.
+MAX_ANSWER_BYTES = "65536"
+# How long a pending question / stored answer lives (seconds).
+ANSWER_TTL_SECONDS = "900"
+# Rate limits for /ask (Grok Bot routines allow 200 runs/hour per routine).
+ASK_PER_MINUTE = "8"
+ASK_PER_HOUR = "60"
+# Rate limit for polling GET /answer/:id.
+POLL_PER_MINUTE = "120"
+# Comma-separated allowed origins, e.g. "chrome-extension://abcdef...". Empty = any chrome-extension:// origin.
+ALLOWED_ORIGINS = ""
+
+# Secrets (never committed). `npm run setup` sets all four; the Deploy to Cloudflare button asks for them
+# (see .dev.vars.example). By hand: `npx wrangler secret put NAME`.
+#   EXT_TOKEN            - random token the browser extension sends (Authorization: Bearer)
+#   REPLY_TOKEN          - random token your Grok Bot uses on POST /answer and GET /screenshot/:id
+#   GROKBOT_WEBHOOK_URL  - the "POST to" URL of your Grok Bot's "Grok Browser" webhook routine
+#   GROKBOT_WEBHOOK_KEY  - that routine's webhook sender key

@@ -1,0 +1,51 @@
+name: CI
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: |
+          npm ci --prefix relay --no-audit --no-fund
+          npm ci --prefix test --no-audit --no-fund
+      - name: Install Chrome for Testing
+        run: |
+          CHROME_PATH=$(npx --yes @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/chrome" --format '{{path}}' | tail -1)
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+      - name: Test
+        run: xvfb-run -a npm test
+      - name: Build extension zip
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grok-browser-extension
+          path: dist/*.zip
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run build
+      - name: Attach zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Grok Browser $TAG" --notes "See README for install steps."
+          gh release upload "$TAG" dist/*.zip --clobber

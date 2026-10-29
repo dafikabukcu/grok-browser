@@ -1,0 +1,9 @@
+{
+  "name": "grok-browser-tests",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": { "test": "bash run-tests.sh" },
+  "dependencies": { "puppeteer-core": "^25.16.0" }
+}

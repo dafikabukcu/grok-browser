@@ -1,0 +1,6 @@
+# Secrets for the Grok Browser relay. The Deploy to Cloudflare button asks for these; `npm run setup` fills them in for you.
+# Generate each token with: openssl rand -base64 32   (or the "Generate tokens" button in the extension's settings)
+EXT_TOKEN=generate-a-long-random-string
+REPLY_TOKEN=generate-a-different-long-random-string
+GROKBOT_WEBHOOK_URL=https://your-grok-bot-routine-webhook-url
+GROKBOT_WEBHOOK_KEY=your-routine-webhook-key

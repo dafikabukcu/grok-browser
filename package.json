@@ -1,0 +1,17 @@
+{
+  "name": "grok-browser",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Ask your own Grok Bot (or Grok via your xAI API key) about the page, book or PDF you're reading. Community project, not affiliated with xAI.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "setup": "npm --prefix relay install --no-audit --no-fund && node relay/scripts/setup.mjs",
+    "deploy": "npm --prefix relay run deploy",
+    "test": "bash test/run-tests.sh",
+    "test:unit": "node test/unit-test.mjs",
+    "build": "node scripts/build-zip.mjs",
+    "screenshots": "UPDATE_SCREENSHOTS=1 bash test/run-tests.sh"
+  },
+  "engines": { "node": ">=18" }
+}
